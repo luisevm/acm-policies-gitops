@@ -100,9 +100,9 @@ The enviremont has 3 clusters, with the following naming:
 
     a. Clone Git
 
-        ```
-        git clone https://github.com/luisevm/acm-policies-gitops.git
-        ```
+    ```
+    git clone https://github.com/luisevm/acm-policies-gitops.git
+    ```
 
     b. Find the imageContainer version for your ACM version:
     - Open https://catalog.redhat.com
