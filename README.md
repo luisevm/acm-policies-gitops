@@ -100,7 +100,7 @@ The enviremont has 3 clusters, with the following naming:
 
     a. Clone Git
 
-        ```bash 
+        ```
         git clone https://github.com/luisevm/acm-policies-gitops.git
         ```
 
@@ -149,14 +149,13 @@ The enviremont has 3 clusters, with the following naming:
 
   d. Check that the ArgoCD instance restarts and that is goes running again
 
-        ```bash
+        ```
         oc -n openshift-gitops get pods
         ```
 
 5. Bootstrap required Objects
 
     a.Create in ACM HUB the namespace where the Policyes will be saved 
-
         ```
         oc create -f bootstrap/clustergroups/00-namespace.yaml
         ```
