@@ -239,18 +239,18 @@ Example to troubleshoot the Policy to audit the presence of the OpenShift-Gitops
     oc -n acm-policies get policy,placement,placementbinding
     ```
 
-    - Verify that ApplicationSet was deployed
+    #Verify that ApplicationSet was deployed
     ```bash
     oc -n openshift-gitops describe applicationset 
     ```
 
-    - Open ArgoCD UI in a browser and verify all the Applications deployed
+    #Open ArgoCD UI in a browser and verify all the Applications deployed
 
-    - Verify Applications are created for each policy:
+    #Verify Applications are created for each policy:
 
-        ```bash
-        oc -n openshift-gitops get applications.argoproj.io
-        ```
+    ```bash
+    oc -n openshift-gitops get applications.argoproj.io
+    ```
 
     ```bash
     oc -n acm-policy get placement
