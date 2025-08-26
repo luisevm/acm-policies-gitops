@@ -4,6 +4,9 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="_zjkOJmLrae22tlbRbpd-3" value="&lt;b&gt;OpenShift ACM Hub cluster&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="54" y="50" width="700" height="670" as="geometry" />
+        </mxCell>
         <mxCell id="G2LgMif2vIfPvXsa3s2T-3" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="G2LgMif2vIfPvXsa3s2T-1" target="G2LgMif2vIfPvXsa3s2T-2" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
@@ -31,7 +34,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="G2LgMif2vIfPvXsa3s2T-1" value="&lt;b&gt;ApplicationSet&lt;/b&gt;&lt;div&gt;Name: appset-policies&lt;br&gt;&lt;div&gt;(Git directory Generator)&lt;/div&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="240" y="120" width="306" height="60" as="geometry" />
+          <mxGeometry x="237" y="110" width="306" height="60" as="geometry" />
         </mxCell>
         <mxCell id="G2LgMif2vIfPvXsa3s2T-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="G2LgMif2vIfPvXsa3s2T-2" target="G2LgMif2vIfPvXsa3s2T-10" edge="1">
           <mxGeometry relative="1" as="geometry" />
@@ -111,9 +114,9 @@
         <mxCell id="G2LgMif2vIfPvXsa3s2T-36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="G2LgMif2vIfPvXsa3s2T-35" target="G2LgMif2vIfPvXsa3s2T-33" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="G2LgMif2vIfPvXsa3s2T-37" value="create manifests in cluster matching Placement" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="G2LgMif2vIfPvXsa3s2T-36" vertex="1" connectable="0">
-          <mxGeometry x="0.2414" y="1" relative="1" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="_zjkOJmLrae22tlbRbpd-1" value="Replicate Policy" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="G2LgMif2vIfPvXsa3s2T-36">
+          <mxGeometry x="-0.145" y="1" relative="1" as="geometry">
+            <mxPoint y="12" as="offset" />
           </mxGeometry>
         </mxCell>
         <mxCell id="G2LgMif2vIfPvXsa3s2T-40" value="&lt;b&gt;OpenShift Spoke&lt;/b&gt;&lt;div&gt;&lt;b&gt;dev-cluster&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;align=center;" parent="1" vertex="1">
@@ -128,16 +131,16 @@
             <mxPoint x="645.5" y="755" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="G2LgMif2vIfPvXsa3s2T-44" value="create manifests in cluster matching Placement" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="G2LgMif2vIfPvXsa3s2T-43" vertex="1" connectable="0">
+        <mxCell id="G2LgMif2vIfPvXsa3s2T-44" value="Replicate Policy" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="G2LgMif2vIfPvXsa3s2T-43" vertex="1" connectable="0">
           <mxGeometry x="0.2414" y="1" relative="1" as="geometry">
             <mxPoint x="-3" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="SfZNMjxyM3tuoI5MVNso-1" value="&lt;div style=&quot;text-align: left;&quot;&gt;governance-policy-framework addon apply:&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;-namespace:&amp;nbsp;openshift-compliance&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;-operatorgroup&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;-subscription&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+        <mxCell id="SfZNMjxyM3tuoI5MVNso-1" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;governance-policy-framework addon creates:&lt;/b&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;-namespace:&amp;nbsp;openshift-compliance&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;-operatorgroup&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;-subscription&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
           <mxGeometry x="89" y="816" width="170" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="SfZNMjxyM3tuoI5MVNso-3" value="&lt;div style=&quot;text-align: left;&quot;&gt;governance-policy-framework addon apply:&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;-namespace: mynamespace&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
-          <mxGeometry x="530.5" y="810" width="170" height="80" as="geometry" />
+        <mxCell id="SfZNMjxyM3tuoI5MVNso-3" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;governance-policy-framework addon creates:&lt;/b&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;-namespace: mynamespace&lt;/span&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="530.5" y="797" width="170" height="80" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
