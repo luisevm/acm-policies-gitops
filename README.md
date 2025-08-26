@@ -1,26 +1,15 @@
 
+# Disclosure
+
+
+
 # Introduction
-This repo demonstrates how to use Red Hat ACM with GitOps (Argo CD ApplicationSet push model)
-and PolicyGenerator to deploy the policies to the selected spoke clusters.
 
-A ApplicationSet git directory generator is used, to deploy all the policies withing the directory policies/*. The ApplicationSet will create one Application per each policy that will be applied.
-The following is the tree of this repo:
+This repository demonstrates how to use Red Hat Advanced Cluster Management (ACM) together with GitOps (Argo CD ApplicationSet push model) and PolicyGenerator to deploy policies to selected spoke clusters.
 
-For more context the following diagram gives a visualization of the compoenents involved, from the creation of the ApplicationSet until the enforcement of the policies, this is a high level diagram:
+An ApplicationSet using the Git directory generator is configured to deploy all policies defined under policies/*. For each policy, the ApplicationSet automatically creates an Application that ensures the policy is applied to the target clusters.
 
-![Diagram flow: creation of the manifests](images/diagram_flow.jpg "creation of the manifests")
-
-See the following [link](https://open-cluster-management.io/docs/getting-started/integration/policy-controllers/policy-framework/) for more details on ACMs policies architecture.
-
-# LAB Architecture 
-
-## Infrastructure
-The enviremont has 3 clusters, with the following naming: 
-- local-cluster: this is the ACM HUB cluster (cluster where ACM is installed)
-- prod-cluster: spoke cluster labeled with environment: prod
-- dev-cluster: spoke cluster, labeled with environment: dev
-
-## Repo directories structure
+Repository structure example:
 - boostrap/app directory: contains the ApplicationSet manifests
 - boostrap/clustergroups directory: contains the MCE .....
 - policies/*: Contains the Polcies that will be enforced, each child directory is one policy.
@@ -56,14 +45,33 @@ The enviremont has 3 clusters, with the following naming:
 │   │   └── policy-generator.yaml
 ```
 
-# Usage
+The following diagram provides a high-level overview of the components involved, from the creation of the ApplicationSet to the enforcement of policies:
+
+![Diagram flow: creation of the manifests](images/diagram_flow.jpg "creation of the manifests")
+
+For more details on ACM policy architecture, see the community [documentation](https://open-cluster-management.io/docs/getting-started/integration/policy-controllers/policy-framework/).
+
+
+# Prerequisites
+
+Before using this repository, make sure you have:
+- A running OpenShift cluster with Red Hat ACM installed.
+- Two or more spoke clusters already imported into ACM. This repo expects that one cluster is named prod-cluster and other named dev-cluster, besides the local-cluster/ACM HUB cluster
+
+# LAB Architecture 
+
+The enviremont has 3 clusters, with the following naming: 
+- local-cluster: this is the ACM HUB cluster (cluster where ACM is installed)
+- prod-cluster: spoke cluster. For placement porpuses will be labeled with environment: prod
+- dev-cluster: spoke cluster. For placement porpuses will be labeled with environment: dev
+
+# How to use this Repository
 
 ## Summary of Configuration:
 ??1. Configure ArgoCD instance to use the PolicyGenerator plugin.
 ??1. Create the manifests of the bootstrap
 
 ??1. Label the target managed clusters with `environment=prod` (or adjust in policy-generator.yaml).
-
 
 ## Detailed Configuration
 
@@ -216,8 +224,6 @@ The enviremont has 3 clusters, with the following naming:
     oc -n openshift-gitops get applications.argoproj.io
     ```
 
-
-
 # Troubleshoot
 Example to troubleshoot the Policy to audit the presence of the OpenShift-Gitops operator.
 
@@ -232,13 +238,18 @@ Example to troubleshoot the Policy to audit the presence of the OpenShift-Gitops
     oc -n acm-policies get policy,placement,placementbinding
     ```
 
+    - Verify that ApplicationSet was deployed
     ```bash
     oc -n openshift-gitops describe applicationset 
     ```
 
-    ```bash
-    oc -n openshift-gitops get applications.argoproj.io
-    ```
+    - Open ArgoCD UI in a browser and verify all the Applications deployed
+
+    - Verify Applications are created for each policy:
+
+        ```bash
+        oc -n openshift-gitops get applications.argoproj.io
+        ```
 
     ```bash
     oc -n acm-policy get placement
@@ -256,13 +267,14 @@ Example to troubleshoot the Policy to audit the presence of the OpenShift-Gitops
 
 2. On the spoke cluster
 
+    #Verify Policy was propagated to the spoke cluster
     ```bash
     oc -n prod-cluster get policy
     oc -n prod-cluster describe policy acm-policies.policy-audit-gitops-operator
     ```
 
-    ```bash
     #Look at policy-controller logs on the spoke
+    ```bash
     oc -n open-cluster-management-agent-addon get pods | grep governance-policy-framework
     oc -n open-cluster-management-agent-addon logs <policy-framework-pod>
     ```
