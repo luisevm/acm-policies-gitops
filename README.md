@@ -99,9 +99,9 @@ The enviremont has 3 clusters, with the following naming:
 
     a. Clone Git
 
-    ```bash 
-    https://github.com/luisevm/acm-policies-gitops.git
-    ```
+        ```bash 
+        https://github.com/luisevm/acm-policies-gitops.git
+        ```
 
     b. Find the imageContainer version for your ACM version:
     - Open https://catalog.redhat.com
@@ -114,36 +114,37 @@ The enviremont has 3 clusters, with the following naming:
         oc -n openshift-gitops edit argocd openshift-gitops
         ```
     - Patch ArgoCD
-    ```
-    apiVersion: argoproj.io/v1beta1
-    kind: ArgoCD
-    metadata:
-      name: openshift-gitops
-      namespace: openshift-gitops
-    spec:
-      kustomizeBuildOptions: --enable-alpha-plugins
-      repo:
-        env:
-        - name: KUSTOMIZE_PLUGIN_HOME
-          value: /etc/kustomize/plugin
-        initContainers:
-        - args:
-          - -c
-          - cp /policy-generator/PolicyGenerator-not-fips-compliant /policy-generator-tmp/PolicyGenerator
-          command:
-          - /bin/bash
-          image: registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel9:2.14.0-1752502331
-          name: policy-generator-install
-          volumeMounts:
-          - mountPath: /policy-generator-tmp
-            name: policy-generator
-        volumeMounts:
-        - mountPath: /etc/kustomize/plugin/policy.open-cluster-management.io/v1/policygenerator
-          name: policy-generator
-        volumes:
-        - emptyDir: {}
-          name: policy-generator
-    ```
+
+        ```
+        apiVersion: argoproj.io/v1beta1
+        kind: ArgoCD
+        metadata:
+          name: openshift-gitops
+          namespace: openshift-gitops
+        spec:
+          kustomizeBuildOptions: --enable-alpha-plugins
+          repo:
+            env:
+            - name: KUSTOMIZE_PLUGIN_HOME
+              value: /etc/kustomize/plugin
+            initContainers:
+            - args:
+              - -c
+              - cp /policy-generator/PolicyGenerator-not-fips-compliant /policy-generator-tmp/PolicyGenerator
+              command:
+              - /bin/bash
+              image: registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel9:2.14.0-1752502331
+              name: policy-generator-install
+              volumeMounts:
+              - mountPath: /policy-generator-tmp
+                name: policy-generator
+            volumeMounts:
+            - mountPath: /etc/kustomize/plugin/policy.open-cluster-management.io/v1/policygenerator
+              name: policy-generator
+            volumes:
+            - emptyDir: {}
+              name: policy-generator
+        ```
 
   d. Check that the ArgoCD instance restarts and that is goes running again
 
