@@ -147,11 +147,11 @@ The enviremont has 3 clusters, with the following naming:
               name: policy-generator
         ```
 
-  d. Check that the ArgoCD instance restarts and that is goes running again
+    d. Check that the ArgoCD instance restarts and that is goes running again
 
-        ```
-        oc -n openshift-gitops get pods
-        ```
+    ```
+    oc -n openshift-gitops get pods
+    ```
 
 5. Bootstrap required Objects
 
@@ -163,58 +163,58 @@ The enviremont has 3 clusters, with the following naming:
 
     b.Configure the RBAC for the new namesapce to have auth......
 
-        ```
-        oc create -f bootstrap/clustergroups/10-rbac.yaml
-        oc create -f bootstrap/clustergroups/11-rbac-admin.yaml
-        ```
+    ```
+    oc create -f bootstrap/clustergroups/10-rbac.yaml
+    oc create -f bootstrap/clustergroups/11-rbac-admin.yaml
+    ```
 
     c.
 
-        ```
-        oc create -f bootstrap/clustergroups/30-mce-mceprod.yaml
-        ```
+    ```
+    oc create -f bootstrap/clustergroups/30-mce-mceprod.yaml
+    ```
 
     d.
-        ```
-        oc create -f bootstrap/clustergroups/31-mce-mcedev.yaml
-        ```
+    ```
+    oc create -f bootstrap/clustergroups/31-mce-mcedev.yaml
+    ```
 
     e.
-        ```
-        oc create -f bootstrap/clustergroups/40-mc-mcprod.yaml
-        oc label managedcluster prod-cluster cluster.open-cluster-management.io/clusterset=mceprod --overwrite
-        oc label ManagedCluster prod-cluster environment=prod
-        ```
+    ```
+    oc create -f bootstrap/clustergroups/40-mc-mcprod.yaml
+    oc label managedcluster prod-cluster cluster.open-cluster-management.io/clusterset=mceprod --overwrite
+    oc label ManagedCluster prod-cluster environment=prod
+    ```
 
     f.
-        ```
-        oc create -f bootstrap/clustergroups/41-mc-mcdev.yaml 
-        oc label managedcluster dev-cluster cluster.open-cluster-management.io/clusterset=mcedev --overwrite
-        oc label ManagedCluster dev-cluster environment=dev
-        ```
+    ```
+    oc create -f bootstrap/clustergroups/41-mc-mcdev.yaml 
+    oc label managedcluster dev-cluster cluster.open-cluster-management.io/clusterset=mcedev --overwrite
+    oc label ManagedCluster dev-cluster environment=dev
+    ```
 
     g.
-        ```
-        oc create -f bootstrap/clustergroups/50-mcsb-mceprod.yaml 
-        ```
+    ```
+    oc create -f bootstrap/clustergroups/50-mcsb-mceprod.yaml 
+    ```
 
     h.
-        ```
-        oc create -f bootstrap/clustergroups/51-mcsb-mcedev.yaml
-        ```
+    ```
+    oc create -f bootstrap/clustergroups/51-mcsb-mcedev.yaml
+    ```
 
 6. Create ApplicationSet
 
     a.
-        ```
-        oc create -f bootstrap/app/40-applicationset-governance.yaml
-        ```
+    ```
+    oc create -f bootstrap/app/40-applicationset-governance.yaml
+    ```
 
     b. Check that the AplicationSet was created that it created one Application per each Policy
 
-        ```
-        oc -n openshift-gitops get applications.argoproj.io
-        ```
+    ```
+    oc -n openshift-gitops get applications.argoproj.io
+    ```
 
 
 
