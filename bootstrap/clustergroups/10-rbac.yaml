@@ -11,10 +11,9 @@ rules:
     verbs: ["get","list","watch","create","update","patch","delete"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
   name: openshift-gitops-policy-admin
-  namespace: acm-policies
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -23,3 +22,17 @@ subjects:
   - kind: ServiceAccount
     name: openshift-gitops-argocd-application-controller
     namespace: openshift-gitops
+#---
+#apiVersion: rbac.authorization.k8s.io/v1
+#kind: RoleBinding
+#metadata:
+#  name: openshift-gitops-policy-admin
+#  namespace: acm-policies
+#roleRef:
+#  apiGroup: rbac.authorization.k8s.io
+#  kind: ClusterRole
+#  name: openshift-gitops-policy-admin
+#subjects:
+#  - kind: ServiceAccount
+#    name: openshift-gitops-argocd-application-controller
+#    namespace: openshift-gitops
