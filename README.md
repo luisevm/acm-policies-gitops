@@ -156,6 +156,7 @@ The enviremont has 3 clusters, with the following naming:
 5. Bootstrap required Objects
 
     a.Create in ACM HUB the namespace where the Policyes will be saved 
+
         ```
         oc create -f bootstrap/clustergroups/00-namespace.yaml
         ```
