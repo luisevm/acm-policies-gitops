@@ -93,128 +93,132 @@ The enviremont has 3 clusters, with the following naming:
     EOF
     ```
 
-3. Configure ArgoCD instance to use the PolicyGenerator plugin.
+4. Configure ArgoCD instance to use the PolicyGenerator plugin.
 
-Documentation followed: [Integrating the Policy Generator with OpenShift GitOps](https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_management_for_kubernetes/2.13/html/gitops/gitops-overview#integrate-pol-gen-ocp-gitops) and [another chapter](https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_management_for_kubernetes/2.13/html/gitops/gitops-overview#gitops-policy-definitions).
+    Documentation reference link: [Integrating the Policy Generator with OpenShift GitOps](https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_management_for_kubernetes/2.13/html/gitops/gitops-overview#integrate-pol-gen-ocp-gitops) and [chapter](https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_management_for_kubernetes/2.13/html/gitops/gitops-overview#gitops-policy-definitions).
 
-  a. Clone Git
-https://github.com/luisevm/acm-policies-gitops.git
+    a. Clone Git
 
-  a. Find the imageContainer version for your ACM version:
+    ```bash 
+    https://github.com/luisevm/acm-policies-gitops.git
+    ```
+
+    b. Find the imageContainer version for your ACM version:
     - Open https://catalog.redhat.com
     - Search by image multicluster-operators-subscription
     - Check the image versions available and select the image name that match your ACM version, in my case ACM version is 2.14 and the correspondent image is registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel9:2.14.0-1752502331.
 
-  b. Patch the ArgoCD adding the following configuration to the existing ArgoCD manifest:
+    c. Patch the ArgoCD adding the following configuration to the existing ArgoCD manifest:
+    - Edit ArgoCD instance - in my case Im using the instance running in openshift-gitops namespace
+        ```bash
+        oc -n openshift-gitops edit argocd openshift-gitops
+        ```
+    - Patch ArgoCD
+    ```
+    apiVersion: argoproj.io/v1beta1
+    kind: ArgoCD
+    metadata:
+      name: openshift-gitops
+      namespace: openshift-gitops
+    spec:
+      kustomizeBuildOptions: --enable-alpha-plugins
+      repo:
+        env:
+        - name: KUSTOMIZE_PLUGIN_HOME
+          value: /etc/kustomize/plugin
+        initContainers:
+        - args:
+          - -c
+          - cp /policy-generator/PolicyGenerator-not-fips-compliant /policy-generator-tmp/PolicyGenerator
+          command:
+          - /bin/bash
+          image: registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel9:2.14.0-1752502331
+          name: policy-generator-install
+          volumeMounts:
+          - mountPath: /policy-generator-tmp
+            name: policy-generator
+        volumeMounts:
+        - mountPath: /etc/kustomize/plugin/policy.open-cluster-management.io/v1/policygenerator
+          name: policy-generator
+        volumes:
+        - emptyDir: {}
+          name: policy-generator
+    ```
 
-      - Edit ArgoCD instance - in my case Im using the instance running in openshift-gitops namespace
-
-      ```bash
-      oc -n openshift-gitops edit argocd openshift-gitops
-      ```
-  
-      - Patch ArgoCD
-
-```
-apiVersion: argoproj.io/v1beta1
-kind: ArgoCD
-metadata:
-  name: openshift-gitops
-  namespace: openshift-gitops
-spec:
-  kustomizeBuildOptions: --enable-alpha-plugins
-  repo:
-    env:
-    - name: KUSTOMIZE_PLUGIN_HOME
-      value: /etc/kustomize/plugin
-    initContainers:
-    - args:
-      - -c
-      - cp /policy-generator/PolicyGenerator-not-fips-compliant /policy-generator-tmp/PolicyGenerator
-      command:
-      - /bin/bash
-      image: registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel9:2.14.0-1752502331
-      name: policy-generator-install
-      volumeMounts:
-      - mountPath: /policy-generator-tmp
-        name: policy-generator
-    volumeMounts:
-    - mountPath: /etc/kustomize/plugin/policy.open-cluster-management.io/v1/policygenerator
-      name: policy-generator
-    volumes:
-    - emptyDir: {}
-      name: policy-generator
-```
-
-  c. Check that the ArogoCD instance restarts and that is goes running again
+  d. Check that the ArgoCD instance restarts and that is goes running again
 
       ```bash
       oc -n openshift-gitops get pods
       ```
 
+5. Bootstrap required Objects
 
-2. Bootstrap configuration - only create this manisfests once
+    a.Create in ACM HUB the namespace where the Policyes will be saved 
 
+    ```
+    oc create -f bootstrap/clustergroups/00-namespace.yaml
+    ```
 
+    b.Configure the RBAC for the new namesapce to have auth......
 
-a.Create in ACM HUB the namespace where the Policyes will be saved 
+    ```
+    oc create -f bootstrap/clustergroups/10-rbac.yaml
+    oc create -f bootstrap/clustergroups/11-rbac-admin.yaml
+    ```
 
-```
-oc create -f bootstrap/clustergroups/00-namespace.yaml
-```
+    c.
 
-b.Configure the RBAC for the new namesapce to have auth......
+    ```
+    oc create -f bootstrap/clustergroups/30-mce-mceprod.yaml
+    ```
 
-```
-oc create -f bootstrap/clustergroups/10-rbac.yaml
-oc create -f bootstrap/clustergroups/11-rbac-admin.yaml
+    d.
+    ```
+    oc create -f bootstrap/clustergroups/31-mce-mcedev.yaml
+    ```
 
-```
+    e.
+    ```
+    oc create -f bootstrap/clustergroups/40-mc-mcprod.yaml
+    oc label managedcluster prod-cluster cluster.open-cluster-management.io/clusterset=mceprod --overwrite
+    oc label ManagedCluster prod-cluster environment=prod
+    ```
 
-c.
-oc create -f bootstrap/clustergroups/30-mce-mceprod.yaml
+    f.
+    ```
+    oc create -f bootstrap/clustergroups/41-mc-mcdev.yaml 
+    oc label managedcluster dev-cluster cluster.open-cluster-management.io/clusterset=mcedev --overwrite
+    oc label ManagedCluster dev-cluster environment=dev
+    ```
 
-d.
-oc create -f bootstrap/clustergroups/31-mce-mcedev.yaml
+    g.
+    ```
+    oc create -f bootstrap/clustergroups/50-mcsb-mceprod.yaml 
+    ```
 
-e.
-oc create -f bootstrap/clustergroups/40-mc-mcprod.yaml
-oc label managedcluster prod-cluster cluster.open-cluster-management.io/clusterset=mceprod --overwrite
-oc label ManagedCluster prod-cluster environment=prod
+    h.
+    ```
+    oc create -f bootstrap/clustergroups/51-mcsb-mcedev.yaml
+    ```
 
+6. Create ApplicationSet
 
-f.
-oc create -f bootstrap/clustergroups/41-mc-mcdev.yaml 
-oc label managedcluster dev-cluster cluster.open-cluster-management.io/clusterset=mcedev --overwrite
-oc label ManagedCluster dev-cluster environment=dev
+    a.
+    ```
+    oc create -f bootstrap/app/40-applicationset-governance.yaml
+    ```
 
-g.
-oc create -f bootstrap/clustergroups/50-mcsb-mceprod.yaml 
-
-h.
-oc create -f bootstrap/clustergroups/51-mcsb-mcedev.yaml
-
-i.
-
-
-3. Create ApplicationSet
-
-a.
-oc create -f bootstrap/app/40-applicationset-governance.yaml
-
-b. Check that each policy has one Application created 
-
-4. Check the status
-
-
+    b. Check that each policy has one Application created 
 
 # Troubleshoot
+Example to troubleshoot the Policy to audit the presence of the OpenShift-Gitops operator.
 
+1. On the ACM HUB cluster
+
+```bash
 oc -n acm-policy get policy
 oc -n acm-policy describe policy policy-audit-gitops-operator
-
-
-#On the ACM HUB cluster
+```
 
 ```bash
 oc -n acm-policies get policy,placement,placementbinding
@@ -226,30 +230,31 @@ oc -n openshift-gitops describe applicationset
 
 ```bash
 oc -n openshift-gitops get applications.argoproj.io
-
-????? whats the behaviour if the policy is not applyed, showuld it be degraded?????????????????????
 ```
 
-
+```bash
 oc -n acm-policy get placement
 oc -n acm-policy describe placement gitops-targets
+``
 
+```bash
 oc -n acm-policy get placementdecision
+``
+
+```bash
 oc -n acm-policy describe policy <your-policy-name>
-
 oc -n prod-cluster get policy
+```
 
+2. On the spoke cluster
 
-
-#On the spoke cluster
+```bash
 oc -n prod-cluster get policy
 oc -n prod-cluster describe policy acm-policies.policy-audit-gitops-operator
+```bash
 
-
+```bash
 #Look at policy-controller logs on the spoke
 oc -n open-cluster-management-agent-addon get pods | grep governance-policy-framework
 oc -n open-cluster-management-agent-addon logs <policy-framework-pod>
-
-
-# Remove Objects
-
+```bash
