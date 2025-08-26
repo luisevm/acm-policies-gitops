@@ -84,6 +84,7 @@ The enviremont has 3 clusters, with the following naming:
 3. Give RBAC to allow the user you login to OpenShift or ArgoCD, to see in ArgoCD the applications created in ACM HUB OpenShift cluster
 
     ```bash
+    oc create -f - <<EOF
     apiVersion: user.openshift.io/v1
     kind: Group
     metadata:
@@ -100,7 +101,7 @@ The enviremont has 3 clusters, with the following naming:
     a. Clone Git
 
         ```bash 
-        https://github.com/luisevm/acm-policies-gitops.git
+        git clone https://github.com/luisevm/acm-policies-gitops.git
         ```
 
     b. Find the imageContainer version for your ACM version:
@@ -148,114 +149,120 @@ The enviremont has 3 clusters, with the following naming:
 
   d. Check that the ArgoCD instance restarts and that is goes running again
 
-      ```bash
-      oc -n openshift-gitops get pods
-      ```
+        ```bash
+        oc -n openshift-gitops get pods
+        ```
 
 5. Bootstrap required Objects
 
     a.Create in ACM HUB the namespace where the Policyes will be saved 
 
-    ```
-    oc create -f bootstrap/clustergroups/00-namespace.yaml
-    ```
+        ```
+        oc create -f bootstrap/clustergroups/00-namespace.yaml
+        ```
 
     b.Configure the RBAC for the new namesapce to have auth......
 
-    ```
-    oc create -f bootstrap/clustergroups/10-rbac.yaml
-    oc create -f bootstrap/clustergroups/11-rbac-admin.yaml
-    ```
+        ```
+        oc create -f bootstrap/clustergroups/10-rbac.yaml
+        oc create -f bootstrap/clustergroups/11-rbac-admin.yaml
+        ```
 
     c.
 
-    ```
-    oc create -f bootstrap/clustergroups/30-mce-mceprod.yaml
-    ```
+        ```
+        oc create -f bootstrap/clustergroups/30-mce-mceprod.yaml
+        ```
 
     d.
-    ```
-    oc create -f bootstrap/clustergroups/31-mce-mcedev.yaml
-    ```
+        ```
+        oc create -f bootstrap/clustergroups/31-mce-mcedev.yaml
+        ```
 
     e.
-    ```
-    oc create -f bootstrap/clustergroups/40-mc-mcprod.yaml
-    oc label managedcluster prod-cluster cluster.open-cluster-management.io/clusterset=mceprod --overwrite
-    oc label ManagedCluster prod-cluster environment=prod
-    ```
+        ```
+        oc create -f bootstrap/clustergroups/40-mc-mcprod.yaml
+        oc label managedcluster prod-cluster cluster.open-cluster-management.io/clusterset=mceprod --overwrite
+        oc label ManagedCluster prod-cluster environment=prod
+        ```
 
     f.
-    ```
-    oc create -f bootstrap/clustergroups/41-mc-mcdev.yaml 
-    oc label managedcluster dev-cluster cluster.open-cluster-management.io/clusterset=mcedev --overwrite
-    oc label ManagedCluster dev-cluster environment=dev
-    ```
+        ```
+        oc create -f bootstrap/clustergroups/41-mc-mcdev.yaml 
+        oc label managedcluster dev-cluster cluster.open-cluster-management.io/clusterset=mcedev --overwrite
+        oc label ManagedCluster dev-cluster environment=dev
+        ```
 
     g.
-    ```
-    oc create -f bootstrap/clustergroups/50-mcsb-mceprod.yaml 
-    ```
+        ```
+        oc create -f bootstrap/clustergroups/50-mcsb-mceprod.yaml 
+        ```
 
     h.
-    ```
-    oc create -f bootstrap/clustergroups/51-mcsb-mcedev.yaml
-    ```
+        ```
+        oc create -f bootstrap/clustergroups/51-mcsb-mcedev.yaml
+        ```
 
 6. Create ApplicationSet
 
     a.
-    ```
-    oc create -f bootstrap/app/40-applicationset-governance.yaml
-    ```
+        ```
+        oc create -f bootstrap/app/40-applicationset-governance.yaml
+        ```
 
-    b. Check that each policy has one Application created 
+    b. Check that the AplicationSet was created that it created one Application per each Policy
+
+        ```
+        oc -n openshift-gitops get applications.argoproj.io
+        ```
+
+
 
 # Troubleshoot
 Example to troubleshoot the Policy to audit the presence of the OpenShift-Gitops operator.
 
 1. On the ACM HUB cluster
 
-```bash
-oc -n acm-policy get policy
-oc -n acm-policy describe policy policy-audit-gitops-operator
-```
+    ```bash
+    oc -n acm-policy get policy
+    oc -n acm-policy describe policy policy-audit-gitops-operator
+    ```
 
-```bash
-oc -n acm-policies get policy,placement,placementbinding
-```
+    ```bash
+    oc -n acm-policies get policy,placement,placementbinding
+    ```
 
-```bash
-oc -n openshift-gitops describe applicationset 
-```
+    ```bash
+    oc -n openshift-gitops describe applicationset 
+    ```
 
-```bash
-oc -n openshift-gitops get applications.argoproj.io
-```
+    ```bash
+    oc -n openshift-gitops get applications.argoproj.io
+    ```
 
-```bash
-oc -n acm-policy get placement
-oc -n acm-policy describe placement gitops-targets
-``
+    ```bash
+    oc -n acm-policy get placement
+    oc -n acm-policy describe placement gitops-targets
+    ```
 
-```bash
-oc -n acm-policy get placementdecision
-``
+    ```bash
+    oc -n acm-policy get placementdecision
+    ```
 
-```bash
-oc -n acm-policy describe policy <your-policy-name>
-oc -n prod-cluster get policy
-```
+    ```bash
+    oc -n acm-policy describe policy <your-policy-name>
+    oc -n prod-cluster get policy
+    ```
 
 2. On the spoke cluster
 
-```bash
-oc -n prod-cluster get policy
-oc -n prod-cluster describe policy acm-policies.policy-audit-gitops-operator
-```bash
+    ```bash
+    oc -n prod-cluster get policy
+    oc -n prod-cluster describe policy acm-policies.policy-audit-gitops-operator
+    ```
 
-```bash
-#Look at policy-controller logs on the spoke
-oc -n open-cluster-management-agent-addon get pods | grep governance-policy-framework
-oc -n open-cluster-management-agent-addon logs <policy-framework-pod>
-```bash
+    ```bash
+    #Look at policy-controller logs on the spoke
+    oc -n open-cluster-management-agent-addon get pods | grep governance-policy-framework
+    oc -n open-cluster-management-agent-addon logs <policy-framework-pod>
+    ```
