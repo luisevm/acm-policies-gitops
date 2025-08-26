@@ -6,15 +6,11 @@ and PolicyGenerator to deploy the policies to the selected spoke clusters.
 A ApplicationSet git directory generator is used, to deploy all the policies withing the directory policies/*. The ApplicationSet will create one Application per each policy that will be applied.
 The following is the tree of this repo:
 
-A brief explination about ACM handling of Policies:
-
 For more context the following diagram gives a visualization of the compoenents involved, from the creation of the ApplicationSet until the enforcement of the policies, this is a high level diagram:
 
 ![Diagram flow: creation of the manifests](images/diagram_flow.jpg "creation of the manifests")
 
-See the following link for more details on ACMs policies architecture:
-https://open-cluster-management.io/docs/getting-started/integration/policy-controllers/policy-framework/
-
+See the following [link](https://open-cluster-management.io/docs/getting-started/integration/policy-controllers/policy-framework/) for more details on ACMs policies architecture.
 
 # LAB Architecture 
 
@@ -73,17 +69,29 @@ The enviremont has 3 clusters, with the following naming:
 
 1. Login to ACM HUB cluster
 
-```bash
-oc login -u <user> -p <password> <API_ENDPOINT>
-```
+    ```bash
+    oc login -u <user> -p <password> <API_ENDPOINT>
+    ```
 
 2. Install Openshift-Gitops in ACM HUB cluster
 
-```bash
-oc create -f bootstrap/gitops/00-namespace.yaml
-oc create -f bootstrap/gitops/10-operatorgroup.yaml
-oc create -f bootstrap/gitops/20-subscription.yaml
-```
+    ```bash
+    oc create -f bootstrap/gitops/00-namespace.yaml
+    oc create -f bootstrap/gitops/10-operatorgroup.yaml
+    oc create -f bootstrap/gitops/20-subscription.yaml
+    ```
+
+3. Give RBAC to allow the user you login to OpenShift or ArgoCD, to see in ArgoCD the applications created in ACM HUB OpenShift cluster
+
+    ```bash
+    apiVersion: user.openshift.io/v1
+    kind: Group
+    metadata:
+      name: cluster-admins
+    users:
+    - admin
+    EOF
+    ```
 
 3. Configure ArgoCD instance to use the PolicyGenerator plugin.
 
@@ -198,7 +206,16 @@ b. Check that each policy has one Application created
 
 4. Check the status
 
-- Verify on hub:
+
+
+# Troubleshoot
+
+oc -n acm-policy get policy
+oc -n acm-policy describe policy policy-audit-gitops-operator
+
+
+#On the ACM HUB cluster
+
 ```bash
 oc -n acm-policies get policy,placement,placementbinding
 ```
@@ -214,9 +231,25 @@ oc -n openshift-gitops get applications.argoproj.io
 ```
 
 
+oc -n acm-policy get placement
+oc -n acm-policy describe placement gitops-targets
 
-- Verify on spokes (once synced):
-```bash
-oc --context <spoke> get namespace mynamespace
-oc --context <spoke> get subscription -n openshift-compliance
-```
+oc -n acm-policy get placementdecision
+oc -n acm-policy describe policy <your-policy-name>
+
+oc -n prod-cluster get policy
+
+
+
+#On the spoke cluster
+oc -n prod-cluster get policy
+oc -n prod-cluster describe policy acm-policies.policy-audit-gitops-operator
+
+
+#Look at policy-controller logs on the spoke
+oc -n open-cluster-management-agent-addon get pods | grep governance-policy-framework
+oc -n open-cluster-management-agent-addon logs <policy-framework-pod>
+
+
+# Remove Objects
+

@@ -1,7 +1,0 @@
-#to allow OCP user Admin to see in ArgoCD the applications created in OCP
-apiVersion: user.openshift.io/v1
-kind: Group
-metadata:
-  name: cluster-admins
-users:
-- admin
