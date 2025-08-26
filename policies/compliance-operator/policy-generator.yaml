@@ -1,0 +1,24 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: compliance-operator-install
+policyDefaults:
+  namespace: acm-policies
+  remediationAction: inform 
+  severity: medium
+  placement:
+    name: compliance-targets
+    labelSelector:
+      matchExpressions:
+        #wich spoke clusters should the workloads be deplyed into - in this case the subscription/oprgroup/namespace
+        - key: environment
+          operator: In
+          values: ["prod"]
+policies:
+  - name: policy-audit-compliance-operator
+    #policyAnnotations:
+    #  argocd.argoproj.io/compare-options: IgnoreExtraneous   # <-- here
+    manifests:
+      - path: manifests/00-namespace.yaml
+      - path: manifests/10-operatorgroup.yaml
+      - path: manifests/20-subscription.yaml

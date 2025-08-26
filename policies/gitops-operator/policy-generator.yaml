@@ -1,0 +1,24 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: gitops-operator-install
+policyDefaults:
+  namespace: acm-policies
+  remediationAction: inform        # keep your default
+  severity: medium
+  placement:
+    name: gitops-targets
+    labelSelector:
+      matchExpressions:
+        - key: environment
+          operator: In
+          values: ["prod"]
+policies:
+  - name: policy-audit-gitops-operator
+    policyAnnotations:
+      argocd.argoproj.io/compare-options: IgnoreExtraneous   # <-- here
+    manifests:
+      - path: manifests/00-namespace.yaml
+      - path: manifests/10-operatorgroup.yaml
+      - path: manifests/20-subscription.yaml
+

@@ -1,0 +1,222 @@
+
+# Introduction
+This repo demonstrates how to use Red Hat ACM with GitOps (Argo CD ApplicationSet push model)
+and PolicyGenerator to deploy the policies to the selected spoke clusters.
+
+A ApplicationSet git directory generator is used, to deploy all the policies withing the directory policies/*. The ApplicationSet will create one Application per each policy that will be applied.
+The following is the tree of this repo:
+
+A brief explination about ACM handling of Policies:
+
+For more context the following diagram gives a visualization of the compoenents involved, from the creation of the ApplicationSet until the enforcement of the policies, this is a high level diagram:
+
+![Diagram flow: creation of the manifests](images/diagram_flow.jpg "creation of the manifests")
+
+See the following link for more details on ACMs policies architecture:
+https://open-cluster-management.io/docs/getting-started/integration/policy-controllers/policy-framework/
+
+
+# LAB Architecture 
+
+## Infrastructure
+The enviremont has 3 clusters, with the following naming: 
+- local-cluster: this is the ACM HUB cluster (cluster where ACM is installed)
+- prod-cluster: spoke cluster labeled with environment: prod
+- dev-cluster: spoke cluster, labeled with environment: dev
+
+## Repo directories structure
+- boostrap/app directory: contains the ApplicationSet manifests
+- boostrap/clustergroups directory: contains the MCE .....
+- policies/*: Contains the Polcies that will be enforced, each child directory is one policy.
+
+```
+.
+├── bootstrap
+│   ├── app
+│   │   └── 40-applicationset-governance.yaml
+│   └── clustergroups
+│       ├── 00-namespace.yaml
+│       ├── 10-rbac.yaml
+│       ├── 30-mce-mceprod.yaml
+│       ├── 31-mce-mcedev.yaml
+│       ├── 40-mc-mcprod.yaml
+│       ├── 41-mc-mcdev.yaml
+│       ├── 50-mcsb-mceprod.yaml
+│       └── 51-mcsb-mcedev.yaml
+...
+...
+├── policies
+│   ├── compliance-operator
+│   │   ├── kustomization.yaml
+│   │   ├── manifests
+│   │   │   ├── 00-namespace.yaml
+│   │   │   ├── 10-operatorgroup.yaml
+│   │   │   └── 20-subscription.yaml
+│   │   └── policy-generator.yaml
+│   ├── create-namespace-mynamespace
+│   │   ├── kustomization.yaml
+│   │   ├── manifests
+│   │   │   └── namespace.yaml
+│   │   └── policy-generator.yaml
+```
+
+# Usage
+
+## Summary of Configuration:
+??1. Configure ArgoCD instance to use the PolicyGenerator plugin.
+??1. Create the manifests of the bootstrap
+
+??1. Label the target managed clusters with `environment=prod` (or adjust in policy-generator.yaml).
+
+
+## Detailed Configuration
+
+1. Login to ACM HUB cluster
+
+```bash
+oc login -u <user> -p <password> <API_ENDPOINT>
+```
+
+2. Install Openshift-Gitops in ACM HUB cluster
+
+```bash
+oc create -f bootstrap/gitops/00-namespace.yaml
+oc create -f bootstrap/gitops/10-operatorgroup.yaml
+oc create -f bootstrap/gitops/20-subscription.yaml
+```
+
+3. Configure ArgoCD instance to use the PolicyGenerator plugin.
+
+Documentation followed: [Integrating the Policy Generator with OpenShift GitOps](https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_management_for_kubernetes/2.13/html/gitops/gitops-overview#integrate-pol-gen-ocp-gitops) and [another chapter](https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_management_for_kubernetes/2.13/html/gitops/gitops-overview#gitops-policy-definitions).
+
+  a. Clone Git
+https://github.com/luisevm/acm-policies-gitops.git
+
+  a. Find the imageContainer version for your ACM version:
+    - Open https://catalog.redhat.com
+    - Search by image multicluster-operators-subscription
+    - Check the image versions available and select the image name that match your ACM version, in my case ACM version is 2.14 and the correspondent image is registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel9:2.14.0-1752502331.
+
+  b. Patch the ArgoCD adding the following configuration to the existing ArgoCD manifest:
+
+      - Edit ArgoCD instance - in my case Im using the instance running in openshift-gitops namespace
+
+      ```bash
+      oc -n openshift-gitops edit argocd openshift-gitops
+      ```
+  
+      - Patch ArgoCD
+
+```
+apiVersion: argoproj.io/v1beta1
+kind: ArgoCD
+metadata:
+  name: openshift-gitops
+  namespace: openshift-gitops
+spec:
+  kustomizeBuildOptions: --enable-alpha-plugins
+  repo:
+    env:
+    - name: KUSTOMIZE_PLUGIN_HOME
+      value: /etc/kustomize/plugin
+    initContainers:
+    - args:
+      - -c
+      - cp /policy-generator/PolicyGenerator-not-fips-compliant /policy-generator-tmp/PolicyGenerator
+      command:
+      - /bin/bash
+      image: registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel9:2.14.0-1752502331
+      name: policy-generator-install
+      volumeMounts:
+      - mountPath: /policy-generator-tmp
+        name: policy-generator
+    volumeMounts:
+    - mountPath: /etc/kustomize/plugin/policy.open-cluster-management.io/v1/policygenerator
+      name: policy-generator
+    volumes:
+    - emptyDir: {}
+      name: policy-generator
+```
+
+  c. Check that the ArogoCD instance restarts and that is goes running again
+
+      ```bash
+      oc -n openshift-gitops get pods
+      ```
+
+
+2. Bootstrap configuration - only create this manisfests once
+
+
+
+a.Create in ACM HUB the namespace where the Policyes will be saved 
+
+```
+oc create -f bootstrap/clustergroups/00-namespace.yaml
+```
+
+b.Configure the RBAC for the new namesapce to have auth......
+
+```
+oc create -f bootstrap/clustergroups/10-rbac.yaml
+oc create -f bootstrap/clustergroups/11-rbac-admin.yaml
+
+```
+
+c.
+oc create -f bootstrap/clustergroups/30-mce-mceprod.yaml
+
+d.
+oc create -f bootstrap/clustergroups/31-mce-mcedev.yaml
+
+e.
+oc create -f bootstrap/clustergroups/40-mc-mcprod.yaml
+oc label managedcluster prod-cluster cluster.open-cluster-management.io/clusterset=mceprod --overwrite
+oc label ManagedCluster prod-cluster environment=prod
+
+
+f.
+oc create -f bootstrap/clustergroups/41-mc-mcdev.yaml 
+oc label managedcluster dev-cluster cluster.open-cluster-management.io/clusterset=mcedev --overwrite
+oc label ManagedCluster dev-cluster environment=dev
+
+g.
+oc create -f bootstrap/clustergroups/50-mcsb-mceprod.yaml 
+
+h.
+oc create -f bootstrap/clustergroups/51-mcsb-mcedev.yaml
+
+i.
+
+
+3. Create ApplicationSet
+
+a.
+oc create -f bootstrap/app/40-applicationset-governance.yaml
+
+b. Check that each policy has one Application created 
+
+4. Check the status
+
+- Verify on hub:
+```bash
+oc -n acm-policies get policy,placement,placementbinding
+```
+
+```bash
+oc -n openshift-gitops describe applicationset 
+```
+
+```bash
+oc -n openshift-gitops get applications.argoproj.io
+
+????? whats the behaviour if the policy is not applyed, showuld it be degraded?????????????????????
+```
+
+
+
+- Verify on spokes (once synced):
+```bash
+oc --context <spoke> get namespace mynamespace
+oc --context <spoke> get subscription -n openshift-compliance
+```

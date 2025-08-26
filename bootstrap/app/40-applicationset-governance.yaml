@@ -1,0 +1,63 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  # The name of the ApplicationSet resource.
+  name: appset-policies
+  # The namespace where this ApplicationSet and its generated Applications will be created.
+  namespace: openshift-gitops
+spec:
+  # Define the generator(s) to use for creating Applications.
+  generators:
+    - git:
+        # The repository to scan for directories.
+        repoURL: https://github.com/luisevm/acm-policies-gitops.git
+        # The branch or tag to use.
+        revision: main
+        # The generator will look for directories that match this path pattern.
+        # The '*' wildcard means it will match every subdirectory inside 'policies'.
+        directories:
+          - path: policies/*
+  # This template defines the structure of the Applications that will be generated.
+  template:
+    metadata:
+      # The name of the generated Application. '{{path.basename}}' is a parameter
+      # that will be replaced with the name of the subdirectory found by the generator.
+      # For a directory 'policies/policy-one', the name will be 'policy-one'.
+      name: '{{path.basename}}'
+      # It's good practice to add labels for tracking and management.
+      #labels:
+      #  argocd.argoproj.io/applicationset: appset-policies
+      annotations:
+        # make acm applications UI to show the new application
+        apps.open-cluster-management.io/ocm-managed-cluster: local-cluster
+        apps.open-cluster-management.io/ocm-managed-cluster-app-namespace: openshift-gitops
+
+    spec:
+      # The Argo CD project for the generated Application.
+      project: default
+      # The source of the Kubernetes manifests.
+      source:
+        # This should match the repoURL from the generator.
+        repoURL: https://github.com/luisevm/acm-policies-gitops.git
+        # The branch or tag for the source manifests.
+        targetRevision: main
+        # '{{path}}' will be replaced with the full path of the matched directory
+        # (e.g., 'policies/policy-one').
+        path: '{{path}}'
+      # The destination where the manifests will be deployed.
+      destination:
+        # Target the same cluster where Argo CD is running.
+        server: https://kubernetes.default.svc
+        # Deploy the application's resources into a namespace named after the subdirectory.
+        # For 'policies/policy-one', the namespace will be 'policy-one'.
+        namespace: acm-policies
+      # Automated synchronization policy.
+      syncPolicy:
+        automated:
+          # Allows Argo CD to delete resources that are no longer in the Git repository.
+          prune: true
+          # Allows Argo CD to automatically sync the application when it detects a change.
+          selfHeal: true
+        syncOptions:
+          # Automatically create the destination namespace if it does not exist.
+          - CreateNamespace=true

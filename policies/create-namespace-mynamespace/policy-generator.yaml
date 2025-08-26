@@ -1,0 +1,19 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: create-namespace
+policyDefaults:
+  namespace: acm-policies                    # <-- Policies live here on the hub
+  remediationAction: inform
+  severity: low
+  placement:
+    name: nms-mynamespace-target
+    labelSelector:
+      matchExpressions:
+        - key: environment
+          operator: In
+          values: ["dev"]
+policies:
+  - name: create-nms-mynamespace
+    manifests:
+      - path: manifests/namespace.yaml
