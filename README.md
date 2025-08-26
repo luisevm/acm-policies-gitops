@@ -157,9 +157,9 @@ The enviremont has 3 clusters, with the following naming:
 
     a. Create in ACM HUB the namespace where the Policyes will be saved 
 
-        ```
-        oc create -f bootstrap/clustergroups/00-namespace.yaml
-        ```
+    ```
+    oc create -f bootstrap/clustergroups/00-namespace.yaml
+    ```
 
     b.Configure the RBAC for the new namesapce to have auth......
 
