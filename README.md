@@ -3,7 +3,6 @@
 
 Opinions expressed in this blog are my own and do not necessarily reflect that of the company I work for.
 
-
 # Introduction
 
 This repository demonstrates how to use Red Hat Advanced Cluster Management (ACM) together with GitOps (Argo CD ApplicationSet push model) and PolicyGenerator to deploy policies to selected spoke clusters.
@@ -82,7 +81,13 @@ The enviremont has 3 clusters, with the following naming:
     oc login -u <user> -p <password> <API_ENDPOINT>
     ```
 
-2. Install Openshift-Gitops in ACM HUB cluster
+2. Clone Git
+
+    ```
+    git clone https://github.com/luisevm/acm-policies-gitops.git
+    ```
+
+3. Install Openshift-Gitops in ACM HUB cluster
 
     ```bash
     oc create -f bootstrap/gitops/00-namespace.yaml
@@ -90,7 +95,7 @@ The enviremont has 3 clusters, with the following naming:
     oc create -f bootstrap/gitops/20-subscription.yaml
     ```
 
-3. Give RBAC to allow the user you login to OpenShift or ArgoCD, to see in ArgoCD the applications created in ACM HUB OpenShift cluster
+4. Give RBAC to allow the user you login to OpenShift or ArgoCD, to see in ArgoCD the applications created in ACM HUB OpenShift cluster
 
     ```bash
     oc create -f - <<EOF
@@ -103,22 +108,16 @@ The enviremont has 3 clusters, with the following naming:
     EOF
     ```
 
-4. Configure ArgoCD instance to use the PolicyGenerator plugin.
+5. Configure ArgoCD instance to use the PolicyGenerator plugin.
 
     Documentation reference link: [Integrating the Policy Generator with OpenShift GitOps](https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_management_for_kubernetes/2.13/html/gitops/gitops-overview#integrate-pol-gen-ocp-gitops) and [chapter](https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_management_for_kubernetes/2.13/html/gitops/gitops-overview#gitops-policy-definitions).
 
-    a. Clone Git
-
-    ```
-    git clone https://github.com/luisevm/acm-policies-gitops.git
-    ```
-
-    b. Find the imageContainer version for your ACM version:
+    a. Find the imageContainer version for your ACM version:
     - Open https://catalog.redhat.com
     - Search by image multicluster-operators-subscription
     - Check the image versions available and select the image name that match your ACM version, in my case ACM version is 2.14 and the correspondent image is registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel9:2.14.0-1752502331.
 
-    c. Patch the ArgoCD adding the following configuration to the existing ArgoCD manifest:
+    b. Patch the ArgoCD adding the following configuration to the existing ArgoCD manifest:
     - Edit ArgoCD instance - in my case Im using the instance running in openshift-gitops namespace
         ```bash
         oc -n openshift-gitops edit argocd openshift-gitops
@@ -156,13 +155,13 @@ The enviremont has 3 clusters, with the following naming:
               name: policy-generator
         ```
 
-    d. Check that the ArgoCD instance restarts and that is goes running again
+    c. Check that the ArgoCD instance restarts and that is goes running again
 
     ```
     oc -n openshift-gitops get pods
     ```
 
-5. Bootstrap required Objects
+6. Bootstrap required Objects
 
     a. Create in ACM HUB the namespace where the Policyes will be saved 
 
@@ -212,7 +211,7 @@ The enviremont has 3 clusters, with the following naming:
     oc create -f bootstrap/clustergroups/51-mcsb-mcedev.yaml
     ```
 
-6. Create ApplicationSet
+7. Create ApplicationSet
 
     a.
     ```
