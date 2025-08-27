@@ -82,7 +82,7 @@ The enviremont has 3 clusters, with the following naming:
     ```
 
 2. Clone Git
-
+    
     ```
     git clone https://github.com/luisevm/acm-policies-gitops.git
     ```
@@ -94,8 +94,12 @@ The enviremont has 3 clusters, with the following naming:
     oc create -f bootstrap/gitops/10-operatorgroup.yaml
     oc create -f bootstrap/gitops/20-subscription.yaml
     ```
+    #Check that the installation was successful
+    ```bash
+    oc -n openshift-gitops-operator get csv
+    ```
 
-4. Give RBAC to allow the user you login to OpenShift or ArgoCD, to see in ArgoCD the applications created in ACM HUB OpenShift cluster
+4. Give RBAC to allow the user you login to OpenShift or ArgoCD, to see in ArgoCD the applications created in ACM HUB OpenShift cluster. Replace the user "Admin" with your user.
 
     ```bash
     oc create -f - <<EOF
@@ -169,11 +173,10 @@ The enviremont has 3 clusters, with the following naming:
     oc create -f bootstrap/clustergroups/00-namespace.yaml
     ```
 
-    b.Configure the RBAC for the new namesapce to have auth......
+    b.Configure the RBAC
 
     ```
     oc create -f bootstrap/clustergroups/10-rbac.yaml
-    oc create -f bootstrap/clustergroups/11-rbac-admin.yaml
     ```
 
     c.
