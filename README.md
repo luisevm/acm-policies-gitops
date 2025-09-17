@@ -287,6 +287,7 @@ oc apply -f bootstrap/sealed-secrets/manifests/rolebinding-sealedsecret.yaml
 
          ```$bash
          export CLOUDFLARE_API_TOKEN=?????
+         export NAMESPACE=cert-manager
          ```
 
     - Locally create a secret for Kubernetes to use to access CloudFlare and label it.
@@ -296,7 +297,7 @@ oc apply -f bootstrap/sealed-secrets/manifests/rolebinding-sealedsecret.yaml
         ```
 
         ```$bash
-        cat <<EOF > secret_azv.yaml
+        cat <<EOF > /tmp/secret_azv.yaml
         apiVersion: v1
         data:
           api-token: ${CLOUDFLARE_API_TOKEN_B64}
@@ -312,7 +313,7 @@ oc apply -f bootstrap/sealed-secrets/manifests/rolebinding-sealedsecret.yaml
     - locally create the K8s manifest of the Sealed Secret wich embeds the encryption of the secret to have access to the AZV.
 
         ```$bash
-        kubeseal -f secret_azv.yaml -n ${NAMESPACE} --name secrets-store-cmcreds \
+        kubeseal -f /tmp/secret_azv.yaml -n ${NAMESPACE} --name secrets-store-cmcreds \
          --controller-namespace=sealedsecrets \
          --controller-name=sealed-secrets \
          --format yaml > bootstrap/sealed-secrets/secrets-store-cmcreds.yaml
@@ -339,12 +340,6 @@ git add *
 git commit -m "argocd sealed secrets"
 git push
 ```
-
-
-
-
-
-
 
 
 ## Part3: Detailed Configuration - Deploy App of Applications
