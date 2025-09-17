@@ -285,9 +285,9 @@ oc apply -f bootstrap/sealed-secrets/manifests/rolebinding-sealedsecret.yaml
 
     - Export Vars
 
-     ```$bash
-     export CLOUDFLARE_API_TOKEN=?????
-     ```
+         ```$bash
+         export CLOUDFLARE_API_TOKEN=?????
+         ```
 
     - Locally create a secret for Kubernetes to use to access CloudFlare and label it.
 
