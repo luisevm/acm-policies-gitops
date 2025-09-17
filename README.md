@@ -291,32 +291,32 @@ oc apply -f bootstrap/sealed-secrets/manifests/rolebinding-sealedsecret.yaml
 
     - Locally create a secret for Kubernetes to use to access CloudFlare and label it.
 
-    ```$bash
-    CLOUDFLARE_API_TOKEN_B64=`echo -n ${CLOUDFLARE_API_TOKEN} | base64`
-    ```
+        ```$bash
+        CLOUDFLARE_API_TOKEN_B64=`echo -n ${CLOUDFLARE_API_TOKEN} | base64`
+        ```
 
-    ```$bash
-    cat <<EOF > secret_azv.yaml
-    apiVersion: v1
-    data:
-      api-token: ${CLOUDFLARE_API_TOKEN_B64}
-    kind: Secret
-    metadata:
-      labels:
-        secrets-store.csi.k8s.io/used: "true"  
-      name: secrets-store-cmcreds
-      namespace: ${NAMESPACE}
-    EOF
-    ```
+        ```$bash
+        cat <<EOF > secret_azv.yaml
+        apiVersion: v1
+        data:
+          api-token: ${CLOUDFLARE_API_TOKEN_B64}
+        kind: Secret
+        metadata:
+          labels:
+            secrets-store.csi.k8s.io/used: "true"  
+          name: secrets-store-cmcreds
+          namespace: ${NAMESPACE}
+        EOF
+        ```
 
     - locally create the K8s manifest of the Sealed Secret wich embeds the encryption of the secret to have access to the AZV.
 
-    ```$bash
-    kubeseal -f secret_azv.yaml -n ${NAMESPACE} --name secrets-store-cmcreds \
-     --controller-namespace=sealedsecrets \
-     --controller-name=sealed-secrets \
-     --format yaml > bootstrap/sealed-secrets/secrets-store-cmcreds.yaml
-    ```
+        ```$bash
+        kubeseal -f secret_azv.yaml -n ${NAMESPACE} --name secrets-store-cmcreds \
+         --controller-namespace=sealedsecrets \
+         --controller-name=sealed-secrets \
+         --format yaml > bootstrap/sealed-secrets/secrets-store-cmcreds.yaml
+         ```
 
     > **NOTE**
     > controller-namespace: define the namespace where the operator is installed, 
@@ -324,13 +324,13 @@ oc apply -f bootstrap/sealed-secrets/manifests/rolebinding-sealedsecret.yaml
 
     - Create namespace and add label to allow GitOps to manage the namespace
 
-    ```$bash
-    oc new-project ${NAMESPACE}
-    ```
+        ```$bash
+        oc new-project ${NAMESPACE}
+        ```
 
-    ```$bash
-    oc label namespace ${NAMESPACE} argocd.argoproj.io/managed-by=openshift-gitops
-    ```
+        ```$bash
+        oc label namespace ${NAMESPACE} argocd.argoproj.io/managed-by=openshift-gitops
+        ```
 
 - Before creating the application it is necessary to make a commit and push to the forked repository. 
 
