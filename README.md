@@ -231,7 +231,7 @@ The enviremont has 3 clusters, with the following naming:
 
 ## Part2: Detailed Configuration - Setup Sealed Secrets
 
-1. Sealed Secrets team has developed a Helm Chart for installing the solution automatically. This automatism is customizable with multiple variables depending on the client requirements.
+Sealed Secrets team has developed a Helm Chart for installing the solution automatically. This automatism is customizable with multiple variables depending on the client requirements.
 
 It is important to bear in mind that The kubeseal utility uses asymmetric crypto to encrypt secrets that only the controller can decrypt. Please visit the following [link](https://github.com/bitnami-labs/sealed-secrets/blob/main/docs/developer/crypto.md) for more information about security protocols and cryptographic tools used.
 
@@ -283,54 +283,54 @@ oc apply -f bootstrap/sealed-secrets/manifests/rolebinding-sealedsecret.yaml
 
 - Create SealedSecret Object - to be used by cert-manager: This object will contain the encrypted key used to access CloudFlare APU authentication key.
 
-- Export Vars
+    - Export Vars
 
- ```$bash
- export CLOUDFLARE_API_TOKEN=?????
- ```
+     ```$bash
+     export CLOUDFLARE_API_TOKEN=?????
+     ```
 
-- Locally create a secret for Kubernetes to use to access CloudFlare and label it.
+    - Locally create a secret for Kubernetes to use to access CloudFlare and label it.
 
-```$bash
-CLOUDFLARE_API_TOKEN_B64=`echo -n ${CLOUDFLARE_API_TOKEN} | base64`
-```
+    ```$bash
+    CLOUDFLARE_API_TOKEN_B64=`echo -n ${CLOUDFLARE_API_TOKEN} | base64`
+    ```
 
-```$bash
-cat <<EOF > secret_azv.yaml
-apiVersion: v1
-data:
-  api-token: ${CLOUDFLARE_API_TOKEN_B64}
-kind: Secret
-metadata:
-  labels:
-    secrets-store.csi.k8s.io/used: "true"  
-  name: secrets-store-cmcreds
-  namespace: ${NAMESPACE}
-EOF
-```
+    ```$bash
+    cat <<EOF > secret_azv.yaml
+    apiVersion: v1
+    data:
+      api-token: ${CLOUDFLARE_API_TOKEN_B64}
+    kind: Secret
+    metadata:
+      labels:
+        secrets-store.csi.k8s.io/used: "true"  
+      name: secrets-store-cmcreds
+      namespace: ${NAMESPACE}
+    EOF
+    ```
 
-- locally create the K8s manifest of the Sealed Secret wich embeds the encryption of the secret to have access to the AZV.
+    - locally create the K8s manifest of the Sealed Secret wich embeds the encryption of the secret to have access to the AZV.
 
-```$bash
-kubeseal -f secret_azv.yaml -n ${NAMESPACE} --name secrets-store-cmcreds \
- --controller-namespace=sealedsecrets \
- --controller-name=sealed-secrets \
- --format yaml > bootstrap/sealed-secrets/secrets-store-cmcreds.yaml
-```
+    ```$bash
+    kubeseal -f secret_azv.yaml -n ${NAMESPACE} --name secrets-store-cmcreds \
+     --controller-namespace=sealedsecrets \
+     --controller-name=sealed-secrets \
+     --format yaml > bootstrap/sealed-secrets/secrets-store-cmcreds.yaml
+    ```
 
-> **NOTE**
-> controller-namespace: define the namespace where the operator is installed, 
-> controller-name: is a combination of the SealedSecretController object name and the name of the namespace
+    > **NOTE**
+    > controller-namespace: define the namespace where the operator is installed, 
+    > controller-name: is a combination of the SealedSecretController object name and the name of the namespace
 
-- Create namespace and add label to allow GitOps to manage the namespace
+    - Create namespace and add label to allow GitOps to manage the namespace
 
-```$bash
-oc new-project ${NAMESPACE}
-```
+    ```$bash
+    oc new-project ${NAMESPACE}
+    ```
 
-```$bash
-oc label namespace ${NAMESPACE} argocd.argoproj.io/managed-by=openshift-gitops
-```
+    ```$bash
+    oc label namespace ${NAMESPACE} argocd.argoproj.io/managed-by=openshift-gitops
+    ```
 
 - Before creating the application it is necessary to make a commit and push to the forked repository. 
 
