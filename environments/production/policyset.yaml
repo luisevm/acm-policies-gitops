@@ -1,0 +1,8 @@
+apiVersion: policy.open-cluster-management.io/v1beta1
+kind: PolicySet
+metadata:
+  name: prod-foundational-set
+  namespace: acm-policies
+spec:
+  policies:
+    - create-nms-mynamespace

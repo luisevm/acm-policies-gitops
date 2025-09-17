@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: approot-operators
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/luisevm/acm-policies-gitops.git
+    targetRevision: main
+    path: policies/operators
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: acm-policies
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+

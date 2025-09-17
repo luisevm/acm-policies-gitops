@@ -7,13 +7,14 @@ policyDefaults:
   remediationAction: inform 
   severity: medium
   placement:
-    name: compliance-targets
-    labelSelector:
-      matchExpressions:
-        #wich spoke clusters should the workloads be deplyed into - in this case the subscription/oprgroup/namespace
-        - key: environment
-          operator: In
-          values: ["prod"]
+    excluded: true
+#    name: compliance-targets
+#    labelSelector:
+#      matchExpressions:
+#        #wich spoke clusters should the workloads be deplyed into - in this case the subscription/oprgroup/namespace
+#        - key: environment
+#          operator: In
+#          values: ["prod"]
 policies:
   - name: policy-audit-compliance-operator
     #policyAnnotations:

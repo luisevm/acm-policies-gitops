@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
   # The name of the ApplicationSet resource.
-  name: appset-policies
+  name: appset-spoke-policies
   # The namespace where this ApplicationSet and its generated Applications will be created.
   namespace: openshift-gitops
 spec:
@@ -16,7 +16,7 @@ spec:
         # The generator will look for directories that match this path pattern.
         # The '*' wildcard means it will match every subdirectory inside 'policies'.
         directories:
-          - path: policies/*
+          - path: policies/spoke-config/*
   # This template defines the structure of the Applications that will be generated.
   template:
     metadata:

@@ -7,12 +7,13 @@ policyDefaults:
   remediationAction: inform
   severity: low
   placement:
-    name: nms-mynamespace-target
-    labelSelector:
-      matchExpressions:
-        - key: environment
-          operator: In
-          values: ["dev"]
+    excluded: true
+#    name: nms-mynamespace-target
+#    labelSelector:
+#      matchExpressions:
+#        - key: environment
+#          operator: In
+#          values: ["dev"]
 policies:
   - name: create-nms-mynamespace
     manifests:

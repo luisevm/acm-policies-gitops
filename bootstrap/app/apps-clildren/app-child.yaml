@@ -1,0 +1,55 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sealed-secrets
+  namespace: openshift-gitops      # or argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sealed-secrets      # controller will run here
+  source:
+    repoURL: https://bitnami-labs.github.io/sealed-secrets
+    chart: sealed-secrets
+    # pick a version that matches your cluster; examples: "2.16.3", "2.*"
+    targetRevision: 2.17.7
+    helm:
+      releaseName: sealed-secrets
+      values: |
+        fullnameOverride: sealed-secrets-controller
+        # If you want to bring your own keypair (optional):
+        # secretName: sealed-secrets-key
+        # existingTLSSecret: sealed-secrets-key  # for backwards-compat charts
+        # If you want cluster-wide scope (default true)
+        scope: clusterwide
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - SkipDryRunOnMissingResource=true   # CRD appears during first sync
+---
+# apps/children/01-cert-manager-operator-app.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: certmanager-operator
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/luisevm/acm-policies-gitops.git
+    targetRevision: main
+    path: policies/operators/cert-manager-operator
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: acm-policies
+  syncPolicy:
+    #automated: { prune: true, selfHeal: true }
+    syncOptions: [ "CreateNamespace=true", "ServerSideApply=true", "SkipDryRunOnMissingResource=true" ]

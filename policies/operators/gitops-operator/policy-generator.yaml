@@ -7,12 +7,13 @@ policyDefaults:
   remediationAction: inform        # keep your default
   severity: medium
   placement:
-    name: gitops-targets
-    labelSelector:
-      matchExpressions:
-        - key: environment
-          operator: In
-          values: ["prod"]
+    excluded: true
+#    name: gitops-targets
+#    labelSelector:
+#      matchExpressions:
+#        - key: environment
+#          operator: In
+#          values: ["prod"]
 policies:
   - name: policy-audit-gitops-operator
     policyAnnotations:
